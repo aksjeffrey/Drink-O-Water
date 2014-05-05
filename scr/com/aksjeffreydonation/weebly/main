@@ -1,67 +1,87 @@
-package com.weebly.aksjeffreydonation;
- 
-/*Author: Bhavneet Pannu A.K.A AKS JEFFREY
- *Do Not COPY THIS PLUGIN AND MAKE IT YOUR OWN!
+/**
+ * Author Bhavneet
  */
 
+package com.aksjeffreydonation.weebly;
 
-
-import java.util.logging.Logger;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffectType;
  
 public class Main extends JavaPlugin implements Listener {
-      public final Logger logger = Logger.getLogger("minecraft");
-      private static Plugin instance;
-     
-      public void onEnable() {
-        PluginDescriptionFile pdffile = getDescription();
-        this.logger.info(pdffile.getName() + "Version " + pdffile.getVersion() + " Has being enabled");
-      }
- 
-      
-      @EventHandler
+	
+
+	
+	@Override
+	// When the server is start it does the following...
+	public void onEnable() {
+		getServer().getPluginManager().registerEvents(this, this);
+		 
+		super.onEnable();
+         getLogger().info("Drink-O-Water has started!");
+          
+         
+	}
+	
+	
+	
+	  @EventHandler
       public void onPlayerJoin(PlayerJoinEvent e){
       Player player = e.getPlayer();
       player.sendMessage("This server is using the following plugin! Drink-O-Water");
-      }
       
-      
-      @EventHandler
-      public void PlayerInteract(PlayerInteractEvent event) {
-        Player p = event.getPlayer();
-        PlayerInventory inventory = p.getInventory();
-          if ((p.getItemInHand().getType().equals(Material.MILK_BUCKET)) && (p.hasPermission("drink.milk")) &&
-          (event.getAction().equals(Action.RIGHT_CLICK_AIR))) {
-          inventory.getItemInHand().setType(Material.BUCKET);
-          onMilDrank(event.getPlayer());
-          event.setCancelled(true);
-          return;
-        }
-		return;
       }
-      @EventHandler
-	private void onMilDrank(Player event) {
-    	  Player p = event.getPlayer();
-    	 p.addPotionEffect(PotionEffectType.HEAL.createEffect((int) 200L, 50));;
-        p.sendMessage("You drank " + ChatColor.GRAY + "milk" + ChatColor.WHITE + ".");
-		
-      }
+   
+           
+   
+    
+    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+    	if(cmd.getName().equalsIgnoreCase("Drink-O-Water")){ // If the player typed /Drink-O-Water then do the following...
+    		sender.sendMessage("Help Command!"
+    				+ "When you drink water from a waterbottle it would restore your hunger!"
+    				+ "Come on try it and see how much hunger gets restore!"
+    				+ "Now All ways have a bottle when your adventuring!");
+    		return true;
+    	} 
+    
+
+	return false;
+    	
+    }
+    
+    
+    
+    	// The Good Stuff!
+    
+    @SuppressWarnings("deprecation")
+	@EventHandler
+    public void onDrink(PlayerItemConsumeEvent event) {
+       // Gets the player name
+    	final Player player = event.getPlayer();
+    	//Finds what the player is drinking/eating
+    	final ItemStack item = event.getItem();
+        //If the player player is drink a Potion or well a Water bottle.
+    	if (item.getType() != Material.POTION)
+            return;
+       //Since a waterbottle and potion has the same ID this is how we seperate them!
+    	//Also That means the empty potion battle is the waterbottle! werid right?
+    	//This also means the empty potion bottle is well a ghost block
+    	if (item.getData().getData() != 0) 
+    		return;
         
-        public static Plugin getInstance() {
-        	return instance;
-      }
+    	/*Here it set/restore the player hunger bar, If you want to change this then you will have to change 
+         * the fist number which is 3 and the last one. When changing both fist and last number have to be the same!
+         * Also, in java 3 = 2.5! werid agian! This happens because there should never be a decimal ( . )!
+         */
+    	player.setFoodLevel(player.getFoodLevel() + 3 > 20 ? 20 : player.getFoodLevel() + 3);
+    	player.sendMessage("You Have Successfuly Restored Your Hunger!");
+    }
 }
-     
+ 
